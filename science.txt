@@ -1,0 +1,12 @@
+
+# SCIENCE NOTES
+
+# to keep things in perspective
+# add to this file whenever you think of something that could be useful in the 
+	physical interpretation of a problem
+# sign your name
+
+# example:
+I think that the boundary conditions for the density equation should be constant (because...) - Rishita
+	
+------------------------------------------------------------------------------------------------------------
