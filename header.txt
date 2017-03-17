@@ -1,0 +1,29 @@
+
+# HEADER FILE
+# to keep track of functions and variables in the code
+# be descriptive
+# separate different sections of code with horizontal lines to keep it clean 
+#	(ie. one section for the temperature gradient variables and functions, etc).
+#	title each section for ease of searching
+
+# examples:
+
+// speed of light in m/s
+** the type of c is a constant integer 
+const int c = 3*10^(8);
+
+// age of the universe in Gyr
+** the variable "uni_years" has type integer
+int uni_years = 13;
+
+// computes distance in light has traveled in given time
+** the function "light_dist" takes in an integer named time and returns an integer
+int light_dist(int time); 
+
+** these lines explain the C syntax used for type clarity; they are only there for
+	illustrative purposes and don't need to be included in your variable/function descriptions.
+
+// please include short descriptions above each declaration
+
+---------------------------------------------------------------------------------------------------
+
