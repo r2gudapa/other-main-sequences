@@ -6,7 +6,7 @@
 #	(ie. one section for the temperature gradient variables and functions, etc).
 #	title each section for ease of searching
 
-# examples:
+# examples: 
 
 // speed of light in m/s
 ** the type of c is a constant integer 
