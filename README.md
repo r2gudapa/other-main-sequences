@@ -19,5 +19,6 @@
 	- git add
 	- git commit
 	- git push
+	- git pull
 * Please always leave a commit message
 * Find a git tutorial here: https://git-scm.com/ under "Try Git"
