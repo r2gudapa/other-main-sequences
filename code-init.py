@@ -11,18 +11,21 @@ eppcoeff = (1.07*(10**(-7)))
 ecnocoeff = (8.24*(10**(-26)))
 
 P_1 = (((4*ct.pi**2)**(2.0/3.0))/5.0)*((ct.hbar**2)/ct.m_e)*((p/ct.m_p)**(5.0/3))
-P_2 = p*(k*T)/(mu*ct.m_p)
+P_2 = p*(ct.k*T)/(mu*ct.m_p)
 P_3 = (1.0/3)*a*T**4.0
 
 P = P_1 + P_2 + P_3
 
+X = 1
+Y = 1
+Z = 1
 mu = (2.0*X + 0.75*Y + 0.5*Z)**(-1)
 
 dPdp_1 = (((3*ct.pi**2)**(2.0/3))/3)*(ct.hbar**2/(ct.m_e*ct.m_p))(*(p/ct.m_p)**(2.0/3))
-dPdp_2 = (kT)/(mu*ct.m_p)
+dPdp_2 = (ct.k*T)/(mu*ct.m_p)
 dPdp = dPdp_1 + dPdp_2
 
-dPdT = p*(k/(mu*ct.m_p))+(4.0/3)*a*(T**3)
+dPdT = p*(ct.k/(mu*ct.m_p))+(4.0/3)*ct.a*(T**3)
 
 p_5 = (p/(10**5.0))
 T_6 = (T/(10**6.0))
@@ -36,21 +39,24 @@ eps = e_pp + e_cno
 def vectorfield(p,T,M,L,tau):
     
     p, P, T, M, L, tau, = w
-    G, kappa, ct.pi, a, c, gamma, eps = p
+    G, kap, ct.pi, ct.a, ct.c, gamma, eps = p
     
     # f = [dPdr, dpdr, dTdr_rad, dTdr_conv, dMdr, dLdr, dtaudr]
     f = [-(G*M*p/(r**2))
         (-(G*M*p/(r**2)+dPdT*dTdr)/dPdp),
-        (3*kappa*p*L)/(16*ct.pi*a*c*T**3*r**2),
+        (3*kap*p*L)/(16*ct.pi*ct.a*ct.c*T**3*r**2),
         (1-1/gamma)*(T/P)*(G*M*p/r**2),
         4*ct.pi*r**2*p,
         4*ct.pi*r**2*p*eps,
-        kappa*p]
+        kap*p]
     return f
 
 # Boundary Conditions - fix at r_0 later
-M = 0
-L = 0
+p_c = 0
+T_c = 0
+r_0 = 0.001
+M = ((4.0*ct.pi)/3.0)*((r_0)**3)*p_c
+L = ((4.0*ct.pi)/3.0)*((r_0)**3)*p_c*eps
 p = p_c
 T = T_c
 
