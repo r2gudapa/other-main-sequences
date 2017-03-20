@@ -1,4 +1,5 @@
 # other-main-sequences
+Project for UWaterloo's PHYS 375: Stars; exploring how the main sequence changes with different core compositions.
 
 ## Important Files
 * header.txt - keeps track of functions and variables in the code
@@ -21,4 +22,4 @@
 	- git push
 	- git pull
 * Please always leave a commit message
-* Find a git tutorial here: https://git-scm.com/ under "Try Git"
+* Find a Git tutorial here: https://git-scm.com/ under "Try Git"
