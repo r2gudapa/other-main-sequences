@@ -1,3 +1,5 @@
+import numpy as np
+
 # ALL CONSTANTS BELOW IN SI UNITS
 
 # Proton Mass
