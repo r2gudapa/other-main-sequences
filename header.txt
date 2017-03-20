@@ -79,10 +79,10 @@ const float chi = 13.6
 // VALUES OF MEAN MOLECULAR WEIGHT
 
 // fully ionized pure-H gas
-const float mHII = 1/2
+const float mu_HII = 1/2
 
 // fully ionized pure-He gas
-const float mHeIII = 4/3
+const float mu_HeIII = 4/3
 
 // Sun-like star
 const float mu_S = 0.612
