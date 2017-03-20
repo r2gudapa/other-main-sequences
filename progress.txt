@@ -2,7 +2,8 @@
 PROGRESS NOTES 
 
 Please update under your section whenever you've contributed to the project. 
-This file will help us keep track of the project, determine who to consult on specific jobs, and to balance workload.
+This file will help us keep track of the project, determine who to consult on 
+specific jobs, and to balance workload.
 ** PLEASE DATE YOUR NOTES **
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -12,10 +13,12 @@ RISHITA
 # 03.17.17
 x created git repository at https://github.com/r2gudapa/other-main-sequences 
 x added github integration to slack
-- TODO: add files to git repository: README.md, science.txt, header.txt
+x added files to git repository: README.md, science.txt, header.txt
 
-# 03.18.17
-- TODO: (stuff)
+# 03.19.17
+x added constants.py to repository
+x updated header.txt with newly defined constants
+x created code-init.py; typed up some formulas from the project description
 
 ---------------------------------------------------------------------------------
 /////////////////////////////////////////////////////////////////////////////////
