@@ -30,13 +30,13 @@ k = 1.381e-23
 stfb = 5.670e-8 
 
 # Radiation Energy Density Constant
-a = 4 * stfb / c
+a = 4.0 * stfb / c
 
 # Just pi
 pi = np.pi
 
 # Adiabatic Index for Ideal Gas
-gamma = 5/3 
+gamma = 5.0/3.0 
 
 # Planck's Constant
 h = 6.626e-34 
@@ -52,10 +52,10 @@ chi = 13.6
 # VALUES OF MEAN MOLECULAR WEIGHT
 
 # fully ionized pure-H gas
-mu_HII = 1/2
+mu_HII = 1.0/2.0
 
 # fully ionized pure-He gas
-mu_HeIII = 4/3
+mu_HeIII = 4.0/3.0
 
 # Sun-like star
 mu_S = 0.612
