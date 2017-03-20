@@ -76,7 +76,7 @@ const float chi = 13.6
 
 -----------------------------------------------------
 
-// VALUES OF MEAN MOLECULAR MASS
+// VALUES OF MEAN MOLECULAR WEIGHT
 
 // fully ionized pure-H gas
 const float mHII = 1/2
