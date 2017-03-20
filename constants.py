@@ -62,4 +62,16 @@ mu_S = 0.612
 
 # Red Giant 
 mu_RG = 1.3 # (please check)
- 
+
+############################################
+
+#COMPOSITION VALUES X Y Z
+
+# X - Hydrogen
+X= 0.73
+
+# Y - Helium
+Y= 0.25
+
+# Z - Metals/Other
+Z= 0.02
