@@ -7,6 +7,24 @@ import constants as ct
 import numpy as np
 from scipy.integrate import odeint
 
+# Boundary Conditions - fix at r_0 later
+p_c = 0
+T_c = 0
+r_0 = 0.001
+M = ((4.0*ct.pi)/3.0)*((r_0)**3)*p_c
+L = ((4.0*ct.pi)/3.0)*((r_0)**3)*p_c*eps
+p = p_c
+T = T_c
+
+p_3 = (p/(10*3))
+
+kappa_es = 0.02*(1+X)
+kappa_ff = 1.0*(10**24)*(Z + 0.0001)*((p_3)**0.7)*(T**(-3.5))
+kappa_H = 2.5*(10**(-32))(Z/0.02)*(p_3**0.5)*(T**9)
+
+kap = (1/kappa_H + 1/(max(kappa_es,kappa_ff)))
+                    
+
 eppcoeff = (1.07*(10**(-7)))
 ecnocoeff = (8.24*(10**(-26)))
 
@@ -51,23 +69,6 @@ def vectorfield(p,T,M,L,tau):
         kap*p]
     return f
 
-# Boundary Conditions - fix at r_0 later
-p_c = 0
-T_c = 0
-r_0 = 0.001
-M = ((4.0*ct.pi)/3.0)*((r_0)**3)*p_c
-L = ((4.0*ct.pi)/3.0)*((r_0)**3)*p_c*eps
-p = p_c
-T = T_c
-
-p_3 = (p/(10*3))
-
-kappa_es = 0.02*(1+X)
-kappa_ff = 1.0*(10**24)*(Z + 0.0001)*((p_3)**0.7)*(T**(-3.5))
-kappa_H = 2.5*(10**(-32))(Z/0.02)*(p_3**0.5)*(T**9)
-
-kap = (1/kappa_H + 1/(max(kappa_es,kappa_ff)))
-                    
 
 
 # In[ ]:
