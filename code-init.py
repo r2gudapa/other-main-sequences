@@ -4,6 +4,7 @@
 import constants as ct
 import numpy as np
 from scipy.integrate import odeint
+import matplotlib.pyplot as plt
 
 np.seterr(divide='ignore')
 
@@ -54,28 +55,28 @@ dPdp_1 = (((3*ct.pi**2)**(2.0/3.0))/3.0)*(ct.hbar**2/(ct.m_e*ct.m_p))*((p/ct.m_p
 dPdp_2 = (ct.k*T)/(mu*ct.m_p)
 dPdp = dPdp_1 + dPdp_2
 
-dPdT = p*(ct.k/(mu*ct.m_p))+(4.0/3)*ct.a*(T**3)
+dPdT = p*(ct.k/(mu*ct.m_p))+(4.0/3.0)*ct.a*(T**3)
 
 
 
 
 def vectorfield(w,r):
     
-    p, P, T, M, L, tau = w
-    G, kap, ct.pi, ct.a, ct.c, gamma, eps = p
-    
+    p, T, M, L, tau = w
+#    ct.G, kap, ct.pi, ct.a, ct.c, ct.gamma, eps = q
+    dTdr=-min(((3*kap*p*L)/(16*ct.pi*ct.a*ct.c*T**3*r**2)), (1-1/ct.gamma)*(T/P)*(ct.G*M*p/r**2))
     # f = [dPdr, dpdr, dTdr_rad, dTdr_conv, dMdr, dLdr, dtaudr]
-    f = [-(G*M*p/(r**2))
-        (-(G*M*p/(r**2)+dPdT*dTdr)/dPdp),
-        (3*kap*p*L)/(16*ct.pi*ct.a*ct.c*T**3*r**2),
-        (1-1/gamma)*(T/P)*(G*M*p/r**2),
+    
+    
+    f = [(-(ct.G*M*p/(r**2)+dPdT*dTdr)/dPdp),
+        dTdr,
         4*ct.pi*r**2*p,
         4*ct.pi*r**2*p*eps,
         kap*p]
     return f
 
   
-r = np.linspace(0.0000001, ct.R_s, 10)  
+r = np.linspace(0.0000001, ct.R_s, 100)  
 y0 = [p_c,T_c, 0.0, 0.0, 1.0e6]
 
 sol = odeint(vectorfield,y0,r)
@@ -83,10 +84,15 @@ sol = odeint(vectorfield,y0,r)
 plt.figure(1)
 axes = plt.gca()
 axes.set_xlim(0,3.5e4)
-plt.plot(r, sol[:, 0], 'black')
-plt.plot(r, sol[:, 1], 'gray')
+plt.plot(r, sol[:, 0], label='rho')
+plt.plot(r, sol[:, 1], label='temp')
+plt.plot(r, sol[:, 2], label='Mass')
+plt.plot(r, sol[:, 3], label='Lum')
+plt.plot(r, sol[:, 4], label='tau')
 plt.grid()
-plt.title("$P_s$ vs. r", fontsize=25)
-plt.xlabel('r (AU)', fontsize=20)
-plt.ylabel('$P_s$ 👎', fontsize=20)
+plt.legend()
+plt.title("Graph 1", fontsize=25)
+plt.xlabel('r(m)', fontsize=20)
+plt.ylabel('$P_s$', fontsize=20)
+plt.savefig('Ps vs r', dpi=1000)
 plt.show()
