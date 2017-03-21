@@ -100,10 +100,10 @@ class SingleStar:
 	#overall opacity
 	def Kappa(self,density,temp):
 		if temp > 1.0e4:
-			Kappa = ((1.0/self.KH(density,temp))+(1.0/max(Kes,self.Kff(density,temp))))
+			Kappa = ((1.0/self.KH(density,temp))+(1.0/max(Kes,self.Kff(density,temp))))**(-1.0)
 			
 		else:
-			Kappa = ((1.0/self.KH(density,temp))+(1.0/min(Kes,self.Kff(density,temp))))
+			Kappa = ((1.0/self.KH(density,temp))+(1.0/min(Kes,self.Kff(density,temp))))**(-1.0)
 			
 		return Kappa
 	
