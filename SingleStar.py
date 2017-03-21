@@ -10,18 +10,18 @@ mu = (2.0*ct.X + 0.75*ct.Y + 0.5*ct.Z)**(-1) #mean molecular weight for 100% ion
 #boundary conditions
 p_c = 1.5e6 #kg/m^3
 T_c = 1.6e7 #K
-r0 = 0.000001 #m
+r0 = 0.000001 #m -- initial radius
 
 class SingleStar:
 	
 	def __init__(self, dr, rho_central, T_central):
 	
 		#initial conditions
-		self.dr = dr
-		self.density = rho_central
-		self.temp = T_central
-		self.mass = (4.0/3.0)*np.pi*r0**3*self.density
-		self.luminosity = (4.0/3.0)*np.pi*r0**3*self.density*self.Epsilon(self.density,self.temp)
+		self.dr = dr #step size
+		self.density = rho_central #central density (varies with each star)
+		self.temp = T_central #central temp (varies with each star)
+		self.mass = (4.0/3.0)*np.pi*r0**3*self.density #initial mass condition
+		self.luminosity = (4.0/3.0)*np.pi*r0**3*self.density*self.Epsilon(self.density,self.temp) #initial density condition
 		
 	#create a function for rk4
 
