@@ -33,8 +33,19 @@ CLIFF
 ---------------------------------------------------------------------------------
 NAZBAN
 ---------------------------------------------------------------------------------
+# 03.21.17
+x Created code-init-naz.py
+x Added constant X/Y/Z in constants.py
+x Converted all ints to float
+x Fixed Initial Conditions in the odeint intput y0
+x Re-ordered initial equations
+x Normalized graphs (M is 4 times larger, L is 100 times larger)
+x Added surface value of DE solns.
+x Inversed kappa.
 
-
+x NOTE: p graph shape looks good, rest are off.
+x FUTURE: NEED TO MAKE RK4.
+x FUTURE: NEED TO CHANGE R LINSPACE TO FOLLOW EQ16 IN PROJ DESC
 
 ---------------------------------------------------------------------------------
 /////////////////////////////////////////////////////////////////////////////////
