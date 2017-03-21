@@ -15,10 +15,16 @@ r0 = 0.000001 #m
 class SingleStar:
 	
 	def __init__(self, dr, rho_central, T_central):
-	#create a function for rk4
 	
+		#initial conditions
 		self.dr = dr
+		self.density = rho_central
+		self.temp = T_central
+		self.mass = (4.0/3.0)*np.pi*r0**3*self.density
+		self.luminosity = (4.0/3.0)*np.pi*r0**3*self.density*self.Epsilon(self.density,self.temp)
 		
+	#create a function for rk4
+
 	############___Pressure Functions___############
 	
 	#Degeneracy pressure
@@ -63,10 +69,10 @@ class SingleStar:
 	def dTdr(self,mass,density,temp,radius,luminosity):
 		return -min(self.dTdr_rad(density,luminosity,temp,radius),self.dTdr_conv(temp,mass,density,radius))
 		
-	def dTdr_rad(self,density,luminosity,temp,radius)
+	def dTdr_rad(self,density,luminosity,temp,radius):
 		return (3.0*self.Kappa(density,temp)*density*luminosity)/(16.0*np.pi*ct.a*ct.c*temp**3*radius**2)
 		
-	def dTdr_conv(self,temp,mass,density,radius)
+	def dTdr_conv(self,temp,mass,density,radius):
 		return (1.0 - (1.0/ct.gamma))*(temp*ct.G*mass*density)/(self.P*radius**2)
 		
 	#mass differential eqn
@@ -74,7 +80,7 @@ class SingleStar:
 		return 4.0*np.pi*radius**2*density
 		
 	#luminosity differential eqn
-	def dLdr(self,radius,density)
+	def dLdr(self,radius,density):
 		return 4.0*np.pi*radius**2*density*self.Epsilon(density,temp)
 		
 	#optical depth differential eqn
