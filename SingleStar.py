@@ -16,28 +16,54 @@ class SingleStar:
 	
 		#lists for things we need to plot, these will be filled as rk4 integrates the functions
 		#to begin with these only include the initial conditions and as rk4 finds more values, it should append to these
-		self.dr = dr #step size -- since we are planning to use adaptive rk4, this will change
+		self.dr = dr #step size -- not constant since we are planning to use adaptive rk4, this will change
 		self.radius = [r0]
-		self.density = [rho_central] #central density (varies with each star), the list only contains central rho for now
-		self.temp = [T_central] #central temp (varies with each star), the list only contains 
-		self.mass = [(4.0/3.0)*np.pi*self.radius[0]**3*self.density[0]] #initial mass condition
-		self.lum = (4.0/3.0)*np.pi*r0**3*self.density[0]*self.Epsilon(self.density[0],self.temp[0]) #initial density condition
+		self.density = [rho_central] 
+		self.temp = [T_central] 
+		self.mass = [(4.0/3.0)*np.pi*self.radius[0]**3*self.density[0]] 
+		self.lum = [(4.0/3.0)*np.pi*r0**3*self.density[0]*self.Epsilon(self.density[0],self.temp[0])] 
 		
 	#create a function for rk4
-	def rk4(self,tn,yn,h,f):
+	def rk4(self,radius,density,temp,mass,lum,h):
 		#Thank you Wikipedia!!
 		#tn is the independent variable, i.e. r for all equations
 		#yn is the dependent variable
 		#h is step size
 		#f is the function you want to solve
 	
-		k1 = f(tn,yn) #increment based on the slope at the beginning of the interval using yn
-		k2 = f((tn + (h/2.0)), (yn + (h/2.0)*k1)) #increment based on the slope at the midpoint of the interval using yn + h/2*k1
-		k3 = f((tn + (h/2.0)), (yn + (h/2.0)*k2)) #increment based on the slope at the midpoint of the interval using yn + h/2*k2
-		k4 = f((tn + h), (yn + h*k3)) #increment based on the slope at the end of the interval using yn + h*k3
+		#increment based on the slope at the beginning of the interval using yn
+		k1 = self.dpdr(radius,density,temp,mass,lum)	
+		l1 = self.dTdr(radius,density,temp,mass,lum)
+		m1 = self.dMdr(radius,density)
+		n1 = self.dLdr(radius,density,temp)
+		o1 = self.dtaudr(density,temp)
+		
+		#increment based on the slope at the midpoint of the interval using yn + h/2*k1
+		k2 = self.dpdr(radius + (h/2.0), density + (h/2.0)*k1, temp + (h/2.0)*l1, mass + (h/2.0)*m1, lum + (h/2.0)*n1)
+		l2 = self.dTdr(radius + (h/2.0), density + (h/2.0)*k1, temp + (h/2.0)*l1, mass + (h/2.0)*m1, lum + (h/2.0)*n1)
+		m2 = self.dMdr(radius + (h/2.0), density + (h/2.0)*k1)
+		n2 = self.dLdr(radius + (h/2.0), density + (h/2.0)*k1, temp + (h/2.0)*l1)
+		o2 = self.dtaudr(density + (h/2.0)*k1, temp + (h/2.0)*l1)
+		
+		#increment based on the slope at the midpoint of the interval using yn + h/2*k2
+		k3 = self.dpdr(radius + (h/2.0), density + (h/2.0)*k2, temp + (h/2.0)*l2, mass + (h/2.0)*m2, lum + (h/2.0)*n2)
+		l3 = self.dTdr(radius + (h/2.0), density + (h/2.0)*k2, temp + (h/2.0)*l2, mass + (h/2.0)*m2, lum + (h/2.0)*n2)
+		m3 = self.dMdr(radius + (h/2.0), density + (h/2.0)*k2)
+		n3 = self.dLdr(radius + (h/2.0), density + (h/2.0)*k2, temp + (h/2.0)*l2)
+		o3 = self.dtaudr(density + (h/2.0)*k2, temp + (h/2.0)*l2)
+		
+		#increment based on the slope at the end of the interval using yn + h*k3
+		k4 = self.dpdr(radius + h, density + h*k2, temp + h*l2, mass + h*m2, lum + h*n2)
+		l4 = self.dTdr(radius + h, density + h*k2, temp + h*l2, mass + h*m2, lum + h*n2)
+		m4 = self.dMdr(radius + h, density + h*k2)
+		n4 = self.dLdr(radius + h, density + h*k2, temp + h*l2)
+		o4 = self.dtaudr(density + h*k2, temp + h*l2)
 	
-		ynp1 = yn + (h/6.0)*(k1+2.0*k2+2.0*k3+k4) #means y_n+1 -- rk4 approximation of y(tn+1)
-		tnp1 = tn + h #means t_n+1
+		radius = radius + h #means radius_n+1
+		density = density + (h/6.0)*(k1+2.0*k2+2.0*k3+k4) #means y_n+1 -- rk4 approximation of y(tn+1)
+		temp = temp + (h/6.0)*(l1+2.0*l2+2.0*l3+l4)
+		mass = mass + (h/6.0)*(m1+2.0*m2+2.0*m3+m4)
+		lum = lum + (h/6.0)*(n1+2.0*n2+2.0*n3+n4)
 		
 		return ynp1, tnp1
 	
@@ -78,11 +104,11 @@ class SingleStar:
 	############___System of Equations___############
 	
 	#density differential eqn
-	def dpdr(self, mass, density, radius, temp, lum):
+	def dpdr(self,radius,density,temp,mass,lum):
 		return -((ct.G*mass*density)/(radius**2) + self.dPdT(density,temp)*self.dTdr(mass,density,temp,radius,lum))/self.dPdp(density,temp)
 	
 	#temp differential eqn
-	def dTdr(self,mass,density,temp,radius,lum):
+	def dTdr(self,radius,density,temp,mass,lum):
 		return -min(self.dTdr_rad(density,lum,temp,radius),self.dTdr_conv(temp,mass,density,radius))
 		
 	def dTdr_rad(self,density,lum,temp,radius):
@@ -96,11 +122,11 @@ class SingleStar:
 		return 4.0*np.pi*radius**2*density
 		
 	#luminosity differential eqn
-	def dLdr(self,radius,density):
+	def dLdr(self,radius,density,temp):
 		return 4.0*np.pi*radius**2*density*self.Epsilon(density,temp)
 		
 	#optical depth differential eqn
-	def dtaudr(self,density):
+	def dtaudr(self,density,temp):
 		return self.Kappa(density,temp)*density
 	
 	############___Opacity Equations___############	
@@ -136,13 +162,5 @@ class SingleStar:
 	#overall energy generation rate
 	def Epsilon(self,density,temp):
 		return self.epsilonPP(density,temp) + self.epsilonCNO(density,temp)
-		
-
-	
-	
-	
-		
-		
-		
 		
 		
