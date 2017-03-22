@@ -21,7 +21,9 @@ class SingleStar:
 		self.density = [rho_central] 
 		self.temp = [T_central] 
 		self.mass = [(4.0/3.0)*np.pi*self.radius[0]**3*self.density[0]] 
-		self.lum = [(4.0/3.0)*np.pi*r0**3*self.density[0]*self.Epsilon(self.density[0],self.temp[0])] 
+		self.lum = [(4.0/3.0)*np.pi*r0**3*self.density[0]*self.Epsilon(self.density[0],self.temp[0])]
+
+		self.test = self.CreateStar()
 	
 	#use this function to output stuff
 	def CreateStar(self):
