@@ -24,7 +24,22 @@ class SingleStar:
 		self.luminosity = (4.0/3.0)*np.pi*r0**3*self.density*self.Epsilon(self.density,self.temp) #initial density condition
 		
 	#create a function for rk4
-
+	def rk4(self,tn,yn,h,f):
+		#tn is the independent variable, i.e. r for all equations
+		#yn is the dependent variable
+		#h is step size
+		#f is the function you want to solve
+	
+		k1 = f(tn,yn) #increment based on the slope at the beginning of the interval using yn
+		k2 = f((tn + (h/2.0)), (yn + (h/2.0)*k1)) #increment based on the slope at the midpoint of the interval using yn + h/2*k1
+		k3 = f((tn + (h/2.0)), (yn + (h/2.0)*k2)) #increment based on the slope at the midpoint of the interval using yn + h/2*k2
+		k4 = f((tn + h), (yn + h*k3)) #increment based on the slope at the end of the interval using yn + h*k3
+	
+		ynp1 = yn + (h/6.0)*(k1+2.0*k2+2.0*k3+k4) #means y_n+1 -- rk4 approximation of y(tn+1)
+		tnp1 = tn + h #means t_n+1
+		
+		return ynp1, tnp1
+	
 	############___Pressure Functions___############
 	
 	#Degeneracy pressure
@@ -62,15 +77,15 @@ class SingleStar:
 	############___System of Equations___############
 	
 	#density differential eqn
-	def dpdr(self, mass, density, radius, temp, luminosity):
-		return -((ct.G*mass*density)/(radius**2) + self.dPdT(density,temp)*self.dTdr(mass,density,temp,radius,luminosity))/self.dPdp(density,temp)
+	def dpdr(self, mass, density, radius, temp, lum):
+		return -((ct.G*mass*density)/(radius**2) + self.dPdT(density,temp)*self.dTdr(mass,density,temp,radius,lum))/self.dPdp(density,temp)
 	
 	#temp differential eqn
-	def dTdr(self,mass,density,temp,radius,luminosity):
-		return -min(self.dTdr_rad(density,luminosity,temp,radius),self.dTdr_conv(temp,mass,density,radius))
+	def dTdr(self,mass,density,temp,radius,lum):
+		return -min(self.dTdr_rad(density,lum,temp,radius),self.dTdr_conv(temp,mass,density,radius))
 		
-	def dTdr_rad(self,density,luminosity,temp,radius):
-		return (3.0*self.Kappa(density,temp)*density*luminosity)/(16.0*np.pi*ct.a*ct.c*temp**3*radius**2)
+	def dTdr_rad(self,density,lum,temp,radius):
+		return (3.0*self.Kappa(density,temp)*density*lum)/(16.0*np.pi*ct.a*ct.c*temp**3*radius**2)
 		
 	def dTdr_conv(self,temp,mass,density,radius):
 		return (1.0 - (1.0/ct.gamma))*(temp*ct.G*mass*density)/(self.P*radius**2)
