@@ -12,8 +12,8 @@ r0 = 0.000001 #m -- initial radius
 
 class SingleStar:
 	
-	def __init__(self, dr, rho_central, T_central):
-	
+	def __init__(self, dr, rho_central, T_central,plotmode):
+		
 		#lists for things we need to plot, these will be filled as rk4 integrates the functions
 		#to begin with these only include the initial conditions and as rk4 finds more values, it should append to these
 		self.dr = dr #step size -- not constant since we are planning to use adaptive rk4, this will change
@@ -24,6 +24,8 @@ class SingleStar:
 		self.lum = [(4.0/3.0)*np.pi*r0**3*self.density[0]*self.Epsilon(self.density[0],self.temp[0])]
 
 		self.test = self.CreateStar() #test the class for one star
+		self.plot = self.Plots(plotmode)
+		
 	
 	#use this function to output stuff
 	def CreateStar(self):
@@ -83,8 +85,7 @@ class SingleStar:
 		self.mass.append(mass)
 		self.lum.append(lum)
 		
-		print "Radius:", radius, "\nDensity:", density, "\nTemp:", temp, "\nMass", mass, "\nLuminosity:", lum
-	
+		print "Radius:", radius, "\nDensity:", density, "\nTemp:", temp, "\nMass", mass, "\nLuminosity:", lum, "\n"	
 	#Optical depth limit checker
 	def OptDepthLimit(self):
 		dtau = (self.Kappa(self.density[-1],self.temp[-1])*self.density[-1]**2)/abs(self.dpdr(self.radius[-1],self.density[-1],self.temp[-1],self.mass[-1],self.lum[-1]))
@@ -97,6 +98,7 @@ class SingleStar:
 			
 		else:
 			OptDepthReached = False
+			print "\n", dtau
 			
 		return OptDepthReached
 	
@@ -196,6 +198,41 @@ class SingleStar:
 	def Epsilon(self,density,temp):
 		return self.epsilonPP(density,temp) + self.epsilonCNO(density,temp)
 		
+	def Plots(self,plotmode):
+	
+		if plotmode == 0:
+			plt.figure(1)
+			plt.grid()
+			plt.plot(self.radius, self.density, label='rho')
+			plt.title("rho", fontsize=25)
+			plt.show()
 
+			plt.figure(2)
+			plt.grid()
+			plt.plot(self.radius, self.temp, label='temp')
+			plt.title("Temp", fontsize=25)
+			plt.show()
 
-SingleStar(1000.0,6.0e4,1.0e8)	
+			plt.figure(3)
+			plt.grid()
+			plt.plot(self.radius, self.mass, label='Mass')
+			plt.title("Mass", fontsize=25)
+			plt.show()
+
+			plt.figure(4)
+			plt.grid()
+			plt.plot(self.radius, self.lum, label='Lum')
+			plt.title("Lum", fontsize=25)
+			plt.show()
+			
+		if plotmode == 1: 
+
+			plt.grid()
+			plt.legend()
+			plt.title("Graph 1", fontsize=25)
+			plt.xlabel('r(m)', fontsize=20)
+			plt.ylabel('$y$', fontsize=20)
+			plt.savefig('Test', dpi=1000)
+			plt.show()
+
+SingleStar(1000.0,6.0e3,1.0e8,0)	
