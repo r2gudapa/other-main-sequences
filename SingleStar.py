@@ -22,7 +22,15 @@ class SingleStar:
 		self.temp = [T_central] 
 		self.mass = [(4.0/3.0)*np.pi*self.radius[0]**3*self.density[0]] 
 		self.lum = [(4.0/3.0)*np.pi*r0**3*self.density[0]*self.Epsilon(self.density[0],self.temp[0])] 
-		
+	
+	#use this function to output stuff
+	def CreateStar(self):
+	
+		done = False
+		while done == False:
+			self.rk4(self.radius[-1],self.density[-1],self.temp[-1],self.mass[-1],self.lum[-1])
+			done = self.OptDepthLimit()
+					
 	#create a function for rk4
 	def rk4(self,radius,density,temp,mass,lum,h):
 		#Thank you Wikipedia!!
@@ -74,20 +82,21 @@ class SingleStar:
 		self.lum.append(lum)
 		
 		print "Radius:", radius, "\nDensity:", density, "\nTemp:", temp, "\nMass", mass, "\nLuminosity:", lum
-		
-	def OpacityLimit(self):
-		dtau = (self.Kappa(self.density[-1]*self.temp[-1])*self.density[-1]**2)/abs(self.dpdr(self.radius[-1],self.density[-1],self.temp[-1],self.mass[-1],self.lum[-1])
+	
+	#Optical depth limit checker
+	def OptDepthLimit(self):
+		dtau = (self.Kappa(self.density[-1]*self.temp[-1])*self.density[-1]**2)/abs(self.dpdr(self.radius[-1],self.density[-1],self.temp[-1],self.mass[-1],self.lum[-1]))
 		
 		if dtau < 0.0001:
-			OpacityReached = True
+			OptDepthReached = True
+			
+		elif self.mass[-1] > (1.0e3)*ct.M_s:
+			OptDepthReached = True
 			
 		else:
-			OpacityReached = False
+			OpaDepthReached = False
 			
-		if self.mass[-1] > (1.0e3)*ct.M_s:
-			OpacityReached = True
-			
-		return OpacityReached
+		return OptDepthReached
 	
 	############___Pressure Functions___############
 	
@@ -186,5 +195,5 @@ class SingleStar:
 		return self.epsilonPP(density,temp) + self.epsilonCNO(density,temp)
 		
 
-for 
-SingleStar(1000,6e4,1.0e8)	
+
+SingleStar(1000.0,6.0e4,1.0e8)	
