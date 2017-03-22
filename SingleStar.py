@@ -25,6 +25,7 @@ class SingleStar:
 		
 	#create a function for rk4
 	def rk4(self,tn,yn,h,f):
+		#Thank you Wikipedia!!
 		#tn is the independent variable, i.e. r for all equations
 		#yn is the dependent variable
 		#h is step size
