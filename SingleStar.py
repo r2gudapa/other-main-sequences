@@ -26,11 +26,12 @@ class SingleStar:
 	#create a function for rk4
 	def rk4(self,radius,density,temp,mass,lum,h):
 		#Thank you Wikipedia!!
-		#tn is the independent variable, i.e. r for all equations
-		#yn is the dependent variable
+		#radius is the independent variable,
+		#the rest are the dependent variables
 		#h is step size
-		#f is the function you want to solve
-	
+
+		h = self.dr
+		
 		#increment based on the slope at the beginning of the interval using yn
 		k1 = self.dpdr(radius,density,temp,mass,lum)	
 		l1 = self.dTdr(radius,density,temp,mass,lum)
@@ -65,7 +66,28 @@ class SingleStar:
 		mass = mass + (h/6.0)*(m1+2.0*m2+2.0*m3+m4)
 		lum = lum + (h/6.0)*(n1+2.0*n2+2.0*n3+n4)
 		
-		return ynp1, tnp1
+		#populate the lists
+		self.radius.append(radius)
+		self.density.append(density)
+		self.temp.append(temp)
+		self.mass.append(mass)
+		self.lum.append(lum)
+		
+		print "Radius:", radius, "\nDensity:", density, "\nTemp:", temp, "\nMass", mass, "\nLuminosity:", lum
+		
+	def OpacityLimit(self):
+		dtau = (self.Kappa(self.density[-1]*self.temp[-1])*self.density[-1]**2)/abs(self.dpdr(self.radius[-1],self.density[-1],self.temp[-1],self.mass[-1],self.lum[-1])
+		
+		if dtau < 0.0001:
+			OpacityReached = True
+			
+		else:
+			OpacityReached = False
+			
+		if self.mass[-1] > (1.0e3)*ct.M_s:
+			OpacityReached = True
+			
+		return OpacityReached
 	
 	############___Pressure Functions___############
 	
@@ -163,4 +185,6 @@ class SingleStar:
 	def Epsilon(self,density,temp):
 		return self.epsilonPP(density,temp) + self.epsilonCNO(density,temp)
 		
-		
+
+for 
+SingleStar(1000,6e4,1.0e8)	
