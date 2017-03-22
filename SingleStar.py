@@ -8,20 +8,20 @@ X_cno = 0.03*ct.X #fraction of H going under CNO
 mu = (2.0*ct.X + 0.75*ct.Y + 0.5*ct.Z)**(-1) #mean molecular weight for 100% ionization
 
 #boundary conditions
-p_c = 1.5e6 #kg/m^3
-T_c = 1.6e7 #K
 r0 = 0.000001 #m -- initial radius
 
 class SingleStar:
 	
 	def __init__(self, dr, rho_central, T_central):
 	
-		#initial conditions
-		self.dr = dr #step size
-		self.density = rho_central #central density (varies with each star)
-		self.temp = T_central #central temp (varies with each star)
-		self.mass = (4.0/3.0)*np.pi*r0**3*self.density #initial mass condition
-		self.luminosity = (4.0/3.0)*np.pi*r0**3*self.density*self.Epsilon(self.density,self.temp) #initial density condition
+		#lists for things we need to plot, these will be filled as rk4 integrates the functions
+		#to begin with these only include the initial conditions and as rk4 finds more values, it should append to these
+		self.dr = dr #step size -- since we are planning to use adaptive rk4, this will change
+		self.radius = [r0]
+		self.density = [rho_central] #central density (varies with each star), the list only contains central rho for now
+		self.temp = [T_central] #central temp (varies with each star), the list only contains 
+		self.mass = [(4.0/3.0)*np.pi*self.radius[0]**3*self.density[0]] #initial mass condition
+		self.lum = (4.0/3.0)*np.pi*r0**3*self.density[0]*self.Epsilon(self.density[0],self.temp[0]) #initial density condition
 		
 	#create a function for rk4
 	def rk4(self,tn,yn,h,f):
@@ -137,7 +137,7 @@ class SingleStar:
 	def Epsilon(self,density,temp):
 		return self.epsilonPP(density,temp) + self.epsilonCNO(density,temp)
 		
-	
+
 	
 	
 	
