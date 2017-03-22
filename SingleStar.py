@@ -23,14 +23,14 @@ class SingleStar:
 		self.mass = [(4.0/3.0)*np.pi*self.radius[0]**3*self.density[0]] 
 		self.lum = [(4.0/3.0)*np.pi*r0**3*self.density[0]*self.Epsilon(self.density[0],self.temp[0])]
 
-		self.test = self.CreateStar()
+		self.test = self.CreateStar() #test the class for one star
 	
 	#use this function to output stuff
 	def CreateStar(self):
 	
 		done = False
 		while done == False:
-			self.rk4(self.radius[-1],self.density[-1],self.temp[-1],self.mass[-1],self.lum[-1])
+			self.rk4(self.radius[-1],self.density[-1],self.temp[-1],self.mass[-1],self.lum[-1], self.dr)
 			done = self.OptDepthLimit()
 					
 	#create a function for rk4
@@ -87,7 +87,7 @@ class SingleStar:
 	
 	#Optical depth limit checker
 	def OptDepthLimit(self):
-		dtau = (self.Kappa(self.density[-1]*self.temp[-1])*self.density[-1]**2)/abs(self.dpdr(self.radius[-1],self.density[-1],self.temp[-1],self.mass[-1],self.lum[-1]))
+		dtau = (self.Kappa(self.density[-1],self.temp[-1])*self.density[-1]**2)/abs(self.dpdr(self.radius[-1],self.density[-1],self.temp[-1],self.mass[-1],self.lum[-1]))
 		
 		if dtau < 0.0001:
 			OptDepthReached = True
@@ -96,7 +96,7 @@ class SingleStar:
 			OptDepthReached = True
 			
 		else:
-			OpaDepthReached = False
+			OptDepthReached = False
 			
 		return OptDepthReached
 	
@@ -115,7 +115,7 @@ class SingleStar:
 		return (1.0/3.0)*ct.a*temp**4
 	
 	#total pressure
-	def P(self):
+	def P(self,density,temp):
 		return self.P_deg(density) + self.P_ig(density,temp) + self.P_rad(temp)
 		
 	#dP/dp
@@ -148,7 +148,7 @@ class SingleStar:
 		return (3.0*self.Kappa(density,temp)*density*lum)/(16.0*np.pi*ct.a*ct.c*temp**3*radius**2)
 		
 	def dTdr_conv(self,temp,mass,density,radius):
-		return (1.0 - (1.0/ct.gamma))*(temp*ct.G*mass*density)/(self.P*radius**2)
+		return ((1.0 - (1.0/ct.gamma))*(temp*ct.G*mass*density))/(self.P(density,temp)*radius**2)
 		
 	#mass differential eqn
 	def dMdr(self,radius,density):
