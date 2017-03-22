@@ -228,6 +228,10 @@ class SingleStar:
 		if plotmode == 1: 
 
 			plt.grid()
+			plt.plot(self.radius, self.density, label='rho')
+			plt.plot(self.radius, self.temp, label='temp')
+			plt.plot(self.radius, self.mass, label='Mass')
+			plt.plot(self.radius, self.lum, label='Lum')
 			plt.legend()
 			plt.title("Graph 1", fontsize=25)
 			plt.xlabel('r(m)', fontsize=20)
