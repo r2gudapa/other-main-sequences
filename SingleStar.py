@@ -9,6 +9,18 @@ mu = (2.0*ct.X + 0.75*ct.Y + 0.5*ct.Z)**(-1) #mean molecular weight for 100% ion
 #boundary conditions
 r0 = 0.000001 #m -- initial radius
 
+#rk constants
+c = [0.0,0.0,0.2,0.3,0.8,8.0/9.0,1.0,1.0]
+
+a2 = [0.0,0.2]
+a3 = [0.0,0.075,0.225]
+a4 = [0.0,44.0/45.0,-56.0/15.0,32.0/9.0]
+a5 = [0.0,19372.0/6561.0,-25360.0/2187.0,64448.0/6561.0,-212.0/729.0]
+a6 = [0.0,9017.0/3168.0,-355.0/33.0,46732.0/5247.0,49.0/176.0,-5103.0/18656.0]
+
+b = [0.0,35.0/384.0,0.0,500.0/1113.0,125.0/192.0,-2187.0/6784.0,11.0/84.0]
+bstar = [0.0,5179.0/57600.0,0.0,7571.0/16695.0,393.0/640.0,-92097.0/339200.0,1.0/40.0]
+
 class SingleStar:
 	
 	def __init__(self, dr, rho_central, T_central,plotmode):
@@ -50,45 +62,65 @@ class SingleStar:
 	#create a function for rk4
 	def rk4(self,radius,density,temp,mass,lum,h):
 		#Thank you Wikipedia!!
-		#radius is the independent variable,
-		#the rest are the dependent variables
-		#h is step size
+		#Followed Numerical Recipes for the following rk stuff
 
 		h = self.dr
 		
 		#increment based on the slope at the beginning of the interval using yn
-		k1 = self.dpdr(radius,density,temp,mass,lum)	
-		l1 = self.dTdr(radius,density,temp,mass,lum)
-		m1 = self.dMdr(radius,density)
-		n1 = self.dLdr(radius,density,temp)
-		o1 = self.dtaudr(density,temp)
+		k1 = h*self.dpdr(radius,density,temp,mass,lum)	
+		l1 = h*self.dTdr(radius,density,temp,mass,lum)
+		m1 = h*self.dMdr(radius,density)
+		n1 = h*self.dLdr(radius,density,temp)
+		o1 = h*self.dtaudr(density,temp)
 		
-		#increment based on the slope at the midpoint of the interval using yn + h/2*k1
-		k2 = self.dpdr(radius + (h/2.0), density + (h/2.0)*k1, temp + (h/2.0)*l1, mass + (h/2.0)*m1, lum + (h/2.0)*n1)
-		l2 = self.dTdr(radius + (h/2.0), density + (h/2.0)*k1, temp + (h/2.0)*l1, mass + (h/2.0)*m1, lum + (h/2.0)*n1)
-		m2 = self.dMdr(radius + (h/2.0), density + (h/2.0)*k1)
-		n2 = self.dLdr(radius + (h/2.0), density + (h/2.0)*k1, temp + (h/2.0)*l1)
-		o2 = self.dtaudr(density + (h/2.0)*k1, temp + (h/2.0)*l1)
+		#increment based on the slope at the midpoint of the interval using
+		k2 = h*self.dpdr(radius + c[2]*h, density + a2[1]*k1, temp + a2[1]*l1, mass + a2[1]*m1, lum + a2[1]*n1)
+		l2 = h*self.dTdr(radius + c[2]*h, density + a2[1]*k1, temp + a2[1]*l1, mass + a2[1]*m1, lum + a2[1]*n1)
+		m2 = h*self.dMdr(radius + c[2]*h, density + a2[1]*k1)
+		n2 = h*self.dLdr(radius + c[2]*h, density + a2[1]*k1, temp + a2[1]*l1)
+		o2 = h*self.dtaudr(density + a2[1]*k1, temp + a2[1]*l1)
 		
-		#increment based on the slope at the midpoint of the interval using yn + h/2*k2
-		k3 = self.dpdr(radius + (h/2.0), density + (h/2.0)*k2, temp + (h/2.0)*l2, mass + (h/2.0)*m2, lum + (h/2.0)*n2)
-		l3 = self.dTdr(radius + (h/2.0), density + (h/2.0)*k2, temp + (h/2.0)*l2, mass + (h/2.0)*m2, lum + (h/2.0)*n2)
-		m3 = self.dMdr(radius + (h/2.0), density + (h/2.0)*k2)
-		n3 = self.dLdr(radius + (h/2.0), density + (h/2.0)*k2, temp + (h/2.0)*l2)
-		o3 = self.dtaudr(density + (h/2.0)*k2, temp + (h/2.0)*l2)
+		#increment based on the slope at the midpoint of the interval using 
+		k3 = h*self.dpdr(radius + c[3]*h, density + a3[1]*k1 + a3[2]*k2, temp + a3[1]*l1 + a3[2]*l2, mass + a3[1]*m1 + a3[2]*m2, lum a3[1]*n1 + a3[2]*n2)
+		l3 = h*self.dTdr(radius + c[3]*h, density + a3[1]*k1 + a3[2]*k2, temp + a3[1]*l1 + a3[2]*l2, mass + a3[1]*m1 + a3[2]*m2, lum a3[1]*n1 + a3[2]*n2)
+		m3 = h*self.dMdr(radius + c[3]*h, density + a3[1]*k1 + a3[2]*k2)
+		n3 = h*self.dLdr(radius + c[3]*h, density + a3[1]*k1 + a3[2]*k2, temp + a3[1]*l1 + a3[2]*l2)
+		o3 = h*self.dtaudr(density + a3[1]*k1 + a3[2]*k2, temp + a3[1]*l1 + a3[2]*l2)
 		
-		#increment based on the slope at the end of the interval using yn + h*k3
-		k4 = self.dpdr(radius + h, density + h*k2, temp + h*l2, mass + h*m2, lum + h*n2)
-		l4 = self.dTdr(radius + h, density + h*k2, temp + h*l2, mass + h*m2, lum + h*n2)
-		m4 = self.dMdr(radius + h, density + h*k2)
-		n4 = self.dLdr(radius + h, density + h*k2, temp + h*l2)
-		o4 = self.dtaudr(density + h*k2, temp + h*l2)
-	
+		#increment based on the slope at the end of the interval using 
+		k4 = h*self.dpdr(radius + c[4]*h, density + a4[1]*k1 + a4[2]*k2 + a4[3]*k3, temp + a4[1]*l1 + a4[2]*l2 + a4[3]*l3, mass + a4[1]*m1 + a4[2]*m2 + a4[3]*m3, lum + a4[1]*n1 + a4[2]*n2 + a4[3]*n3)
+		l4 = h*self.dTdr(radius + c[4]*h, density + a4[1]*k1 + a4[2]*k2 + a4[3]*k3, temp + a4[1]*l1 + a4[2]*l2 + a4[3]*l3, mass + a4[1]*m1 + a4[2]*m2 + a4[3]*m3, lum + a4[1]*n1 + a4[2]*n2 + a4[3]*n3)
+		m4 = h*self.dMdr(radius + c[4]*h, density + a4[1]*k1 + a4[2]*k2 + a4[3]*k3)
+		n4 = h*self.dLdr(radius + c[4]*h, density + a4[1]*k1 + a4[2]*k2 + a4[3]*k3, temp + a4[1]*l1 + a4[2]*l2 + a4[3]*l3)
+		o4 = h*self.dtaudr(density + a4[1]*k1 + a4[2]*k2 + a4[3]*k3, temp + a4[1]*l1 + a4[2]*l2 + a4[3]*l3)
+		
+		#fifth order
+		k5 = h*self.dpdr(radius + c[5]*h, density + a5[1]*k1 + a5[2]*k2 + a5[3]*k3 + a5[4]*k4, temp + a5[1]*l1 + a5[2]*l2 + a5[3]*l3 + a5[4]*l4, mass + a5[1]*m1 + a5[2]*m2 + a5[3]*m3 + a5[4]*m4, lum + a5[1]*n1 + a5[2]*n2 + a5[3]*n3 + a5[4]*n4)
+		l5 = h*self.dTdr(radius + c[5]*h, density + a5[1]*k1 + a5[2]*k2 + a5[3]*k3 + a5[4]*k4, temp + a5[1]*l1 + a5[2]*l2 + a5[3]*l3 + a5[4]*l4, mass + a5[1]*m1 + a5[2]*m2 + a5[3]*m3 + a5[4]*m4, lum + a5[1]*n1 + a5[2]*n2 + a5[3]*n3 + a5[4]*n4)
+		m5 = h*self.dMdr(radius + c[5]*h, density + a5[1]*k1 + a5[2]*k2 + a5[3]*k3 + a5[4]*k4)
+		n5 = h*self.dLdr(radius + c[5]*h, density + a5[1]*k1 + a5[2]*k2 + a5[3]*k3 + a5[4]*k4, temp + a5[1]*l1 + a5[2]*l2 + a5[3]*l3 + a5[4]*l4)
+		o5 = h*self.dtaudr(density + a5[1]*k1 + a5[2]*k2 + a5[3]*k3 + a5[4]*k4, temp + a5[1]*l1 + a5[2]*l2 + a5[3]*l3 + a5[4]*l4)
+		
+		#sixth order 
+		k6 = h*self.dpdr(radius + c[6]*h, density + a6[1]*k1 + a6[2]*k2 + a6[3]*k3 + a6[4]*k4 + a6[5]*k5, temp + a6[1]*l1 + a6[2]*l2 + a6[3]*l3 + a6[4]*l4 + a6[5]*l5, mass + a6[1]*m1 + a6[2]*m2 + a6[3]*m3 + a6[4]*m4 + a6[5]*m5, lum + a6[1]*n1 + a6[2]*n2 + a6[3]*n3 + a6[4]*n4 + a6[5]*n5)
+		l6 = h*self.dTdr(radius + c[6]*h, density + a6[1]*k1 + a6[2]*k2 + a6[3]*k3 + a6[4]*k4 + a6[5]*k5, temp + a6[1]*l1 + a6[2]*l2 + a6[3]*l3 + a6[4]*l4 + a6[5]*l5, mass + a6[1]*m1 + a6[2]*m2 + a6[3]*m3 + a6[4]*m4 + a6[5]*m5, lum + a6[1]*n1 + a6[2]*n2 + a6[3]*n3 + a6[4]*n4 + a6[5]*n5)
+		m6 = h*self.dMdr(radius + c[6]*h, density + a6[1]*k1 + a6[2]*k2 + a6[3]*k3 + a6[4]*k4 + a6[5]*k5)
+		n6 = h*self.dLdr(radius + c[6]*h, density + a6[1]*k1 + a6[2]*k2 + a6[3]*k3 + a6[4]*k4 + a6[5]*k5, temp + a6[1]*l1 + a6[2]*l2 + a6[3]*l3 + a6[4]*l4 + a6[5]*l5)
+		o6 = h*self.dtaudr(density + a6[1]*k1 + a6[2]*k2 + a6[3]*k3 + a6[4]*k4 + a6[5]*k5, temp + a6[1]*l1 + a6[2]*l2 + a6[3]*l3 + a6[4]*l4 + a6[5]*l5)
+		
+		#non star values
 		radius = radius + h #means radius_n+1
-		density = density + (h/6.0)*(k1+2.0*k2+2.0*k3+k4) #means y_n+1 -- rk4 approximation of y(tn+1)
-		temp = temp + (h/6.0)*(l1+2.0*l2+2.0*l3+l4)
-		mass = mass + (h/6.0)*(m1+2.0*m2+2.0*m3+m4)
-		lum = lum + (h/6.0)*(n1+2.0*n2+2.0*n3+n4)
+		density = density + b[1]*k1 + b[2]*k2 + b[3]*k3 + b[4]*k4 + b[5]*k5 + b[6]*k6 #means y_n+1 -- rk4 approximation of y(tn+1)
+		temp = temp + b[1]*l1 + b[2]*l2 + b[3]*l3 + b[4]*l4 + b[5]*l5 + b[6]*l6
+		mass = mass + b[1]*m1 + b[2]*m2 + b[3]*m3 + b[4]*m4 + b[5]*m5 + b[6]*m6
+		lum = lum + b[1]*n1 + b[2]*n2 + b[3]*n3 + b[4]*n4 + b[5]*n5 + b[6]*n6
+		
+		#star values
+		#radiusstar = radius + h #means radius_n+1
+		densitystar = density + bstar[1]*k1 + bstar[2]*k2 + bstar[3]*k3 + bstar[4]*k4 + bstar[5]*k5 + bstar[6]*k6 #means y_n+1 -- rk4 approximation of y(tn+1)
+		tempstar = temp + bstar[1]*l1 + bstar[2]*l2 + bstar[3]*l3 + bstar[4]*l4 + bstar[5]*l5 + bstar[6]*l6
+		massstar = mass + bstar[1]*m1 + bstar[2]*m2 + bstar[3]*m3 + bstar[4]*m4 + bstar[5]*m5 + bstar[6]*m6
+		lumstar = lum + bstar[1]*n1 + bstar[2]*n2 + bstar[3]*n3 + bstar[4]*n4 + bstar[5]*n5 + bstar[6]*n6
 		
 		#populate the lists
 		self.radius.append(radius)
@@ -225,61 +257,80 @@ class SingleStar:
 		return self.epsilonPP(density,temp) + self.epsilonCNO(density,temp)
 		
 	def Plots(self,plotmode):
-	
+		
+		r = np.array(self.radius)
+		rho = np.array(self.density)
+		temp = np.array(self.temp)
+		mass = np.array(self.mass)
+		lum = np.array(self.lum)
+		pressure = np.array(self.pressure)
+		pressureDeg = np.array(self.pressureDeg)
+		pressureIG = np.array(self.pressureIG)
+		pressureRad = np.array(self.pressureRad)
+		kappa = np.array(self.kappa)
+		dLdR = np.array(self.dLdr_list)
+		
 		if plotmode == 0:
+			
 			plt.figure(1)
 			plt.grid()
-			#plt.legend(loc='best',bbox_to_anchor=(0.8,0.66),prop={'size':11})
-			plt.plot(self.radius, self.density, label='rho')
-			#plt.plot(self.radius, self.temp, label='temp')
-			#plt.plot(self.radius, self.lum, label='Lum')
-			#plt.plot(self.radius, self.mass, label='Mass')
+			plt.legend(loc='best',bbox_to_anchor=(0.8,0.66),prop={'size':11})
+			plt.plot(r/self.radius[-1], rho/self.density[0], label='rho')
+			plt.plot(r/self.radius[-1], temp/self.temp[0], label='temp')
+			plt.plot(r/self.radius[-1], mass/self.mass[-1], label='Mass')
+			plt.plot(r/self.radius[-1], lum/self.lum[-1], label='Lum')
 			plt.title("Rho", fontsize=25)
 			plt.show()
-			
+			'''
 			plt.figure(2)
 			plt.grid()
-			plt.plot(self.radius, self.temp, label='temp')
+			plt.plot(r/self.radius[-1], temp/self.temp[0], label='temp')
 			plt.title("Temp", fontsize=25)
 			plt.show()
 
 			plt.figure(3)
 			plt.grid()
-			plt.plot(self.radius, self.mass, label='Mass')
+			plt.plot(r/self.radius[-1], mass/self.mass[-1], label='Mass')
 			plt.title("Mass", fontsize=25)
 			plt.show()
 
 			plt.figure(4)
 			plt.grid()
-			plt.plot(self.radius, self.lum, label='Lum')
+			plt.plot(r/self.radius[-1], lum/self.lum[-1], label='Lum')
 			plt.title("Lum", fontsize=25)
 			plt.show()
-			
+			'''
 			plt.figure(5)
 			plt.grid()
-			plt.plot(self.radius, self.dLdr_list, label='dL/dR')
+			plt.plot(r/self.radius[-1], dLdR/(self.lum[-1]/self.radius[-1]), label='dL/dR')
 			plt.title("dLdR", fontsize=25)
 			plt.show()
 			
 			plt.figure(6)
 			plt.grid()
 			plt.legend(loc='best',bbox_to_anchor=(0.8,0.66),prop={'size':11})
-			plt.plot(self.radius, self.pressure, label='Pressure')
-			plt.plot(self.radius, self.pressureDeg, label='PressureDeg')
-			plt.plot(self.radius, self.pressureIG, label='PressureIG')
-			plt.plot(self.radius, self.pressureRad, label='PressureRad')
+			plt.plot(r/self.radius[-1], pressure/self.pressure[0], label='Pressure')
+			plt.plot(r/self.radius[-1], pressureDeg/self.pressure[0], label='PressureDeg')
+			plt.plot(r/self.radius[-1], pressureIG/self.pressure[0], label='PressureIG')
+			plt.plot(r/self.radius[-1], pressureRad/self.pressure[0], label='PressureRad')
 			plt.title("Pressure", fontsize=25)
 			plt.show()
 			
 			plt.figure(7)
 			plt.grid()
-			plt.plot(self.radius, self.kappa, label='Opacity')
-			plt.yscale('log', nonposy='clip')
+			plt.plot(r/self.radius[-1], np.log10(kappa), label='Opacity')
 			plt.title("Opacity", fontsize=25)
 			plt.show()
 			
+			plt.figure(8)
+			plt.grid()
+			plt.plot(r/self.radius[-1], self.dlogPdlogT, label='dlogP/dlogT')
+			plt.title("dlogP/dlogT", fontsize=25)
+			plt.show()
+			
+			
 		if plotmode == 1: 
-
+			#set up figure saving stuff 
 			plt.grid()
 			plt.plot(self.radius, self.density, label='rho')
 			plt.plot(self.radius, self.temp, label='temp')
@@ -290,7 +341,6 @@ class SingleStar:
 			plt.xlabel('r(m)', fontsize=20)
 			plt.ylabel('$y$', fontsize=20)
 			plt.savefig('Test', dpi=1000)
-			plt.show()
 			
 		if plotmode == 2:
 			print "No plots displayed"
