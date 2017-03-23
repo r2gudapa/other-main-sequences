@@ -66,8 +66,12 @@ x created functions for each function
 #03.22.2017
 x Implemented RK4 and the optical deph cut it seems to be working with the example star of p_c = 6e3 and T_c = 1e8
 x Still have to "proof read" to make sure I didnt make errors in defining the equations
+
+#03.23.2017
+x proof read the code
+x added other graphs (they look  beautiful!! :'))
+
 NOTE: Next to do list??
-x NEED TO IMPLETEMENT OTHER GRAPHS THAT ARE NOT PART OF THE SYSTEM OF EQUATIONS
 x NEED TO ADD ADAPTIVE STEP SIZES FOR RK4
 x NEED TO ADD BISECTION TO OPTIMIZE p_c
 

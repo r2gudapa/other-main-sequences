@@ -1,6 +1,5 @@
 import constants as ct
 import numpy as np
-from scipy.integrate import odeint
 import matplotlib.pyplot as plt
 
 Kes = 0.02*(1.0 + ct.X) #m^2/kg/m^3 #electron scattering opacity
@@ -20,8 +19,21 @@ class SingleStar:
 		self.radius = [r0]
 		self.density = [rho_central] 
 		self.temp = [T_central] 
-		self.mass = [(4.0/3.0)*np.pi*self.radius[0]**3*self.density[0]] 
-		self.lum = [(4.0/3.0)*np.pi*r0**3*self.density[0]*self.Epsilon(self.density[0],self.temp[0])]
+		self.mass = [(4.0/3.0)*np.pi*(self.radius[0]**3)*self.density[0]]
+		self.lum = [(4.0/3.0)*np.pi*(r0**3)*self.density[0]*self.Epsilon(self.density[0],self.temp[0])]
+		
+		self.dLdr_list = [(self.dLdr(self.radius[0],self.density[0],self.temp[0]))]
+		
+		self.pressure = [(self.P(self.density[0],self.temp[0]))]
+		self.pressureDeg = [(self.P_deg(self.density[0]))]
+		self.pressureIG = [(self.P_ig(self.density[0],self.temp[0]))]
+		self.pressureRad = [(self.P_rad(self.temp[0]))]
+		
+		#derivative of log P is dPdr/P, and dlogT is dTdr/T 
+		#so dlogP/dlogT = dP/dT*(T/P)
+		self.dlogPdlogT = [(self.dPdT(self.density[0],self.temp[0]))*(self.temp[0]/self.density[0])]
+		
+		self.kappa = [(self.Kappa(self.density[0],self.temp[0]))]
 
 		self.test = self.CreateStar() #test the class for one star
 		self.plot = self.Plots(plotmode)
@@ -85,6 +97,20 @@ class SingleStar:
 		self.mass.append(mass)
 		self.lum.append(lum)
 		
+		self.dLdr_list.append(self.dLdr(self.radius[-1],self.density[-1],self.temp[-1]))
+		
+		self.pressure.append(self.P(self.density[-1],self.temp[-1]))
+		self.pressureDeg.append(self.P_deg(self.density[-1]))
+		self.pressureIG.append(self.P_ig(self.density[-1],self.temp[-1]))
+		self.pressureRad.append(self.P_rad(self.temp[-1]))
+		
+		#derivative of log P is dPdr/P, and dlogT is dTdr/T 
+		#so dlogP/dlogT = dP/dT*(T/P)
+		self.dlogPdlogT.append(self.dPdT(self.density[-1],self.temp[-1])*(self.temp[-1]/self.density[-1]))
+		
+		self.kappa.append(self.Kappa(self.density[-1],self.temp[-1]))
+		
+		
 		print "Radius:", radius, "\nDensity:", density, "\nTemp:", temp, "\nMass", mass, "\nLuminosity:", lum, "\n"	
 	#Optical depth limit checker
 	def OptDepthLimit(self):
@@ -140,7 +166,7 @@ class SingleStar:
 	
 	#density differential eqn
 	def dpdr(self,radius,density,temp,mass,lum):
-		return -((ct.G*mass*density)/(radius**2) + self.dPdT(density,temp)*self.dTdr(mass,density,temp,radius,lum))/self.dPdp(density,temp)
+		return -(((ct.G*mass*density)/(radius**2)) + (self.dPdT(density,temp)*self.dTdr(mass,density,temp,radius,lum)))/self.dPdp(density,temp)
 	
 	#temp differential eqn
 	def dTdr(self,radius,density,temp,mass,lum):
@@ -150,7 +176,7 @@ class SingleStar:
 		return (3.0*self.Kappa(density,temp)*density*lum)/(16.0*np.pi*ct.a*ct.c*temp**3*radius**2)
 		
 	def dTdr_conv(self,temp,mass,density,radius):
-		return ((1.0 - (1.0/ct.gamma))*(temp*ct.G*mass*density))/(self.P(density,temp)*radius**2)
+		return (1.0 - (1.0/ct.gamma))*(temp*ct.G*mass*density)/(self.P(density,temp)*radius**2)
 		
 	#mass differential eqn
 	def dMdr(self,radius,density):
@@ -168,11 +194,11 @@ class SingleStar:
 	
 	#free-free scattering opacity
 	def Kff(self,density,temp):
-		return (1.0e24)*(ct.Z+0.0001)*(density/1e3)**(0.7)*temp**(-3.5)
+		return (1.0e24)*(ct.Z+0.0001)*(density/1.0e3)**(0.7)*temp**(-3.5)
 	
 	#hydrogen ion opacity 	
 	def KH(self,density,temp):
-		return (2.5e-32)*(ct.Z/0.02)*(density/1e3)**(0.5)*temp**9
+		return (2.5e-32)*(ct.Z/0.02)*(density/1.0e3)**(0.5)*temp**9
 	
 	#overall opacity
 	def Kappa(self,density,temp):
@@ -203,10 +229,14 @@ class SingleStar:
 		if plotmode == 0:
 			plt.figure(1)
 			plt.grid()
+			#plt.legend(loc='best',bbox_to_anchor=(0.8,0.66),prop={'size':11})
 			plt.plot(self.radius, self.density, label='rho')
-			plt.title("rho", fontsize=25)
+			#plt.plot(self.radius, self.temp, label='temp')
+			#plt.plot(self.radius, self.lum, label='Lum')
+			#plt.plot(self.radius, self.mass, label='Mass')
+			plt.title("Rho", fontsize=25)
 			plt.show()
-
+			
 			plt.figure(2)
 			plt.grid()
 			plt.plot(self.radius, self.temp, label='temp')
@@ -225,6 +255,29 @@ class SingleStar:
 			plt.title("Lum", fontsize=25)
 			plt.show()
 			
+			plt.figure(5)
+			plt.grid()
+			plt.plot(self.radius, self.dLdr_list, label='dL/dR')
+			plt.title("dLdR", fontsize=25)
+			plt.show()
+			
+			plt.figure(6)
+			plt.grid()
+			plt.legend(loc='best',bbox_to_anchor=(0.8,0.66),prop={'size':11})
+			plt.plot(self.radius, self.pressure, label='Pressure')
+			plt.plot(self.radius, self.pressureDeg, label='PressureDeg')
+			plt.plot(self.radius, self.pressureIG, label='PressureIG')
+			plt.plot(self.radius, self.pressureRad, label='PressureRad')
+			plt.title("Pressure", fontsize=25)
+			plt.show()
+			
+			plt.figure(7)
+			plt.grid()
+			plt.plot(self.radius, self.kappa, label='Opacity')
+			plt.yscale('log', nonposy='clip')
+			plt.title("Opacity", fontsize=25)
+			plt.show()
+			
 		if plotmode == 1: 
 
 			plt.grid()
@@ -238,5 +291,8 @@ class SingleStar:
 			plt.ylabel('$y$', fontsize=20)
 			plt.savefig('Test', dpi=1000)
 			plt.show()
+			
+		if plotmode == 2:
+			print "No plots displayed"
 
 SingleStar(1000.0,6.0e3,1.0e8,0)	
