@@ -298,32 +298,31 @@ class SingleStar:
 
 class Star_with_bisection:
     
-    def __init__(self,dr,rho_central,p):
+    def __init__(self,dr,rho_central,plotmode):
         self.dr = dr
         self.rho_central = rho_central
         self.plotmode = plotmode
-        self.star1 = SingleStar(1000.0,6.0e3,rho_central,plotmode)
-        self.star2 = SingleStar(1000.0,500.0e3,rho_central,plotmode)
-        self.star3 = SingleStar(1000.0,(6.0e3+500.0e3)/2.0,rho_central,plotmode)
-        self.star_final = self.bisection(self.star1, self.star3, self.star2, 0.0005)
+        self.star_start = SingleStar(1000.0,6.0e3,rho_central,plotmode)
+        self.star_end = SingleStar(1000.0,500.0e3,rho_central,plotmode)
+        self.star_bisec = SingleStar(1000.0,(6.0e3+500.0e3)/2.0,rho_central,plotmode)
+        self.star_final = self.bisection(self.star_start, self.star_bisec, self.star_end, 0.001)
 
-    def bisection_function(self,star_trial):
-    	function_numerator = (star_trial.luminosity[star_trial.trial]-(4.0*np.pi*ct.stfb*(star_trial.radius[star_trial.trial])**2.0*(star_trial.temp[star_trial.trial])**4.0))
-    	function_denominator = ((4.0*np.pi*ct.stfb*(star_trial.radius[star_trial.trial])**2.0*(star_trial.temp[star_trial.trial])**4.0*star_trial.luminosity[star_trial.trial])**(1.0/2.0))
-        return = function_numerator / function_denominator
+    def bisection_function(self,radius,temp,lum):
+    	return (lum-(4.0*np.pi*ct.stfb*(radius)**2.0*(temp)**4.0))/((4.0*np.pi*ct.stfb*(radius)**2.0*(temp)**4.0*lum)**(1.0/2.0))
 
-    def bisection(self,star1,star3,star2,tol):
-        for i in range(0,30):
-	        while ((star2.density[0] - star1.density[0]) / 2.0) > tol:
-	            if self.bisection_function(star1) * self.bisection_function(star3) < 0:
-	                star2 = star3
-	            else:
-	                star1 = star3
-	            star3_density = (star1.density[0] + star2.density[0]) / 2.0
-	            star3 = SingleStar(self.dr,star3_density,self.rho_central,self.p)
-	        return star3
+    def bisection(self,star_start,star_bisec,star_end,tol):
+        while ((star_end.density[0] - star_start.density[0]) / 2.0) > tol:
+            if self.bisection_function(self.star_bisec) == 0:
+               return self.star_bisec
+            if self.bisection_function(self.star_start) * self.bisection_function(self.star_bisec) < 0:
+                self.star_end = self.star_bisec
+            else:
+                self.star_start = self.star_bisec
+            self.star_bisec_density = (star_start.density[0] + self.star_end.density[0]) / 2.0
+            self.star_bisec = SingleStar(self.dr,self.star_bisec_density,self.rho_central,self.p)
+        return self.star_bisec
     
-Star_with_bisection(1000.0,6.0e3,1.0e8,0)	
+Star_with_bisection(1000.0,6.0e3,0)	
 
 
 
