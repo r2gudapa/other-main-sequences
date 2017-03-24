@@ -81,11 +81,11 @@ class SingleStar:
         o3 = self.dtaudr(density + (h/2.0)*k2, temp + (h/2.0)*l2)
         
         #increment based on the slope at the end of the interval using yn + h*k3
-        k4 = self.dpdr(radius + h, density + h*k2, temp + h*l2, mass + h*m2, lum + h*n2)
-        l4 = self.dTdr(radius + h, density + h*k2, temp + h*l2, mass + h*m2, lum + h*n2)
-        m4 = self.dMdr(radius + h, density + h*k2)
-        n4 = self.dLdr(radius + h, density + h*k2, temp + h*l2)
-        o4 = self.dtaudr(density + h*k2, temp + h*l2)
+        k4 = self.dpdr(radius + h, density + h*k3, temp + h*l3, mass + h*m3, lum + h*n3)
+        l4 = self.dTdr(radius + h, density + h*k3, temp + h*l3, mass + h*m3, lum + h*n3)
+        m4 = self.dMdr(radius + h, density + h*k3)
+        n4 = self.dLdr(radius + h, density + h*k3, temp + h*l3)
+        o4 = self.dtaudr(density + h*k3, temp + h*l3)
     
         radius = radius + h #means radius_n+1
         density = density + (h/6.0)*(k1+2.0*k2+2.0*k3+k4) #means y_n+1 -- rk4 approximation of y(tn+1)
