@@ -116,7 +116,7 @@ class SingleStar:
         self.kappa.append(self.Kappa(self.density[-1],self.temp[-1]))
         
         
-        #print "Radius:", radius, "\nDensity:", density, "\nTemp:", temp, "\nMass", mass, "\nLuminosity:", lum, "\n"
+        print "Radius:", radius, "\nDensity:", density, "\nTemp:", temp, "\nMass", mass, "\nLuminosity:", lum, "\n"
     #Optical depth limit checker
     def OptDepthLimit(self):
         dtau = (self.Kappa(self.density[-1],self.temp[-1])*self.density[-1]**2)/abs(self.dpdr(self.radius[-1],self.density[-1],self.temp[-1],self.mass[-1],self.lum[-1]))
@@ -330,7 +330,6 @@ class SingleStar:
         if plotmode == 2:
             print "No plots displayed"
 
-
 class Star_with_bisection:
     
     def __init__(self,dr,T_central,plotmode):
@@ -340,7 +339,7 @@ class Star_with_bisection:
         self.star1 = SingleStar(1000.0,6.0e3,T_central,plotmode)
         self.star2 = SingleStar(1000.0,500.0e3,T_central,plotmode)
         self.star3 = SingleStar(1000.0,(6.0e3+500.0e3)/2.0,T_central,plotmode)
-        self.star_final = self.bisection(self.star1, self.star3, self.star2, 0.0005)
+        self.star_final = self.bisection(self.star1, self.star3, self.star2, 0.001)
 
     def bisection_function(self,star_trial):
         r = star_trial.r_star
@@ -351,21 +350,18 @@ class Star_with_bisection:
     def bisection(self,star1,star3,star2,tol):
         counter = 0
         while ((star2.density[0] - star1.density[0]) / 2.0) > tol:
+            if self.bisection_function(star3) == 0:
+               return star3
             if self.bisection_function(star1) * self.bisection_function(star3) < 0:
                 star2 = star3
             else:
                 star1 = star3
-            if counter > 30:
+            counter +=1
+            if counter > 25:
                 break
-            
             star3_density = (star1.density[0] + star2.density[0]) / 2.0
             star3 = SingleStar(self.dr,star3_density,self.T_central,self.plotmode)
-        print "Via Bisection method, central density is:", star3_density
+        print "Via Bisection method, central density is:", star3_density    
         return star3
     
-Star_with_bisection(1000.0,1.0e8,0)    
-
-
-
-
-
+Star_with_bisection(1000.0,1.0e8,0)
