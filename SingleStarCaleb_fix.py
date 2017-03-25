@@ -116,7 +116,7 @@ class SingleStar:
         self.kappa.append(self.Kappa(self.density[-1],self.temp[-1]))
         
         
-        print "Radius:", radius, "\nDensity:", density, "\nTemp:", temp, "\nMass", mass, "\nLuminosity:", lum, "\n"
+        #print "Radius:", radius, "\nDensity:", density, "\nTemp:", temp, "\nMass", mass, "\nLuminosity:", lum, "\n"
     #Optical depth limit checker
     def OptDepthLimit(self):
         dtau = (self.Kappa(self.density[-1],self.temp[-1])*self.density[-1]**2)/abs(self.dpdr(self.radius[-1],self.density[-1],self.temp[-1],self.mass[-1],self.lum[-1]))
@@ -348,20 +348,19 @@ class Star_with_bisection:
         return function_numerator / function_denominator
 
     def bisection(self,star1,star3,star2,tol):
-        counter = 0
+        counter = -1
+        print counter
         while ((star2.density[0] - star1.density[0]) / 2.0) > tol:
-            if self.bisection_function(star3) == 0:
-               return star3
+            counter += 1
             if self.bisection_function(star1) * self.bisection_function(star3) < 0:
                 star2 = star3
-            else:
-                star1 = star3
-            counter +=1
-            if counter > 25:
+            elif counter > 25:
                 break
-            star3_density = (star1.density[0] + star2.density[0]) / 2.0
-            star3 = SingleStar(self.dr,star3_density,self.T_central,self.plotmode)
+            else: 
+                star1 = star3
+        star3_density = ((star1.density[0] + star2.density[0])/2.0)
+        star3 = SingleStar(self.dr,star3_density,self.T_central,self.plotmode)
         print "Via Bisection method, central density is:", star3_density    
         return star3
     
-Star_with_bisection(1000.0,1.0e8,0)
+Star_with_bisection(1000.0,1.0e8,2)
