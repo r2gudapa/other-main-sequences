@@ -349,18 +349,21 @@ class Star_with_bisection:
 
     def bisection(self,star1,star3,star2,tol):
         counter = -1
-        print counter
         while ((star2.density[0] - star1.density[0]) / 2.0) > tol:
             counter += 1
+            print counter
+            if self.bisection_function(star3) < 10.0:
+                break
             if self.bisection_function(star1) * self.bisection_function(star3) < 0:
                 star2 = star3
             elif counter > 25:
                 break
             else: 
                 star1 = star3
-        star3_density = ((star1.density[0] + star2.density[0])/2.0)
-        star3 = SingleStar(self.dr,star3_density,self.T_central,self.plotmode)
-        print "Via Bisection method, central density is:", star3_density    
+    	    star3_density = ((star1.density[0] + star2.density[0])/2.0)
+    	    star3 = SingleStar(self.dr,star3_density,self.T_central,self.plotmode)
+        print "Via Bisection method, central density is:", star3_density   
+        print "f(c) = ", bisection_function(star3)
         return star3
     
 Star_with_bisection(1000.0,1.0e8,2)
