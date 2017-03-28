@@ -8,9 +8,9 @@ r0 = 0.000001 #m
 start = time.time()
 class SingleStar:
 	
-	def __init__(self, dr, rho_c, temp_c):
+	def __init__(self, h, rho_c, temp_c, plotmode):
 		
-		self.dr = dr
+		self.h = h
 		self.Rstar = 0.0
 		
 		#lists to hold the values from rk4
@@ -33,7 +33,7 @@ class SingleStar:
 		self.test = self.CreateStar()
 		#self.test =self.test1()
 		self.RStar = self.RadStar()
-		self.plot = self.Plots()
+		self.plot = self.Plots(plotmode)
 		
 		
 	###########______Define all Equations______###########
@@ -192,7 +192,7 @@ class SingleStar:
 		
 		while self.r[-1] < 5.0:
 			rk4_var = np.array([self.d[-1],self.m[-1]],float)
-			new_rk4, new_radius = self.rk4(rk4_var,self.r[-1],self.dr,self.ftest)
+			new_rk4, new_radius = self.rk4(rk4_var,self.r[-1],self.h,self.ftest)
 			
 			self.d.append(new_rk4[0])
 			self.m.append(new_rk4[1])
@@ -205,9 +205,9 @@ class SingleStar:
 			
 			rk4_var = np.array([self.d[-1],self.t[-1],self.m[-1],self.l[-1],self.tau[-1]],float)
 			
-			new_rk4, new_radius = self.rk4(rk4_var,self.r[-1],self.dr,self.f)
+			new_rk4, new_radius = self.rk4(rk4_var,self.r[-1],self.h,self.f)
 			
-			#print new_rk4, new_radius
+			
 			
 			self.d.append(new_rk4[0])
 			self.t.append(new_rk4[1])
@@ -222,7 +222,8 @@ class SingleStar:
 			done = self.OpticalDepthLimit()
 			#done = True
 		
-	def Plots(self):
+		
+	def Plots(self,plotmode):
 		
 		#convert to arrays for normalizations
 		r = np.array(self.r)
@@ -235,68 +236,69 @@ class SingleStar:
 		kappa = np.array(self.k)
 		dLdr = np.array(self.dLdr_list)
 	
-		#plot the data
-		plt.figure(1)
-		plt.grid()
-		plt.legend(loc='best',bbox_to_anchor=(0.8,0.66),prop={'size':11})
-		plt.plot(r/self.Rstar, rho/self.d[0], label='rho')
-		plt.plot(r/self.Rstar, temp/self.t[0], label='temp')
-		plt.plot(r/self.Rstar, mass/self.m[-1], label='Mass')
-		plt.plot(r/self.Rstar, lum/self.l[-1], label='Lum')
-		plt.title("Rho", fontsize=25)
-		plt.show()
-		'''	
-		plt.figure(2)
-		plt.grid()
-		plt.plot(r/self.Rstar, temp/self.t[0], label='temp')
-		plt.title("Temp", fontsize=25)
-		plt.show()
+		if plotmode == 1:
+			#plot the data
+			plt.figure(1)
+			plt.grid()
+			plt.legend(loc='best',bbox_to_anchor=(0.8,0.66),prop={'size':11})
+			plt.plot(r/self.Rstar, rho/self.d[0], label='rho')
+			plt.plot(r/self.Rstar, temp/self.t[0], label='temp')
+			plt.plot(r/self.Rstar, mass/self.m[-1], label='Mass')
+			plt.plot(r/self.Rstar, lum/self.l[-1], label='Lum')
+			plt.title("Rho", fontsize=25)
+			plt.show()
+			'''	
+			plt.figure(2)
+			plt.grid()
+			plt.plot(r/self.Rstar, temp/self.t[0], label='temp')
+			plt.title("Temp", fontsize=25)
+			plt.show()
+			
+			plt.figure(3)
+			plt.grid()
+			plt.plot(r/self.Rstar, mass/self.m[-1], label='Mass')
+			plt.title("Mass", fontsize=25)
+			plt.show()
+			
+			plt.figure(4)
+			plt.grid()
+			plt.plot(r/self.Rstar, lum/self.l[-1], label='Lum')
+			plt.title("Lum", fontsize=25)
+			plt.show()
+			'''	
+			plt.figure(9)
+			plt.grid()
+			plt.plot(r/self.Rstar, tau/self.tau[-1], label='Tau')
+			plt.title("Tau", fontsize=25)
+			plt.show()
+			
+			plt.figure(5)
+			plt.grid()
+			plt.plot(r/self.Rstar, dLdr/(self.l[-1]/self.Rstar), label='dL/dR')
+			plt.title("dLdR", fontsize=25)
+			plt.show()
+			
+			plt.figure(6)
+			plt.grid()
+			plt.legend(loc='best',bbox_to_anchor=(0.8,0.66),prop={'size':11})
+			plt.plot(r/self.Rstar, pressure/self.p[0], label='Pressure')
+			plt.title("Pressure", fontsize=25)
+			plt.show()
+			
+			plt.figure(7)
+			plt.grid()
+			plt.plot(r/self.Rstar, np.log10(kappa), label='Opacity')
+			plt.title("Opacity", fontsize=25)
+			plt.show()
+			
+			plt.figure(8)
+			axes = plt.gca()
+			#axes.set_xlim(0,11)
+			axes.set_ylim(0,0.85)
+			plt.grid()
+			plt.plot(r[0:len(self.r) - 1]/self.Rstar, self.dlogPdlogT[0:len(self.r) - 1], label='dlogP/dlogT')
+			plt.title("dlogP/dlogT", fontsize=25)
+			plt.show()
 		
-		plt.figure(3)
-		plt.grid()
-		plt.plot(r/self.Rstar, mass/self.m[-1], label='Mass')
-		plt.title("Mass", fontsize=25)
-		plt.show()
-		
-		plt.figure(4)
-		plt.grid()
-		plt.plot(r/self.Rstar, lum/self.l[-1], label='Lum')
-		plt.title("Lum", fontsize=25)
-		plt.show()
-		'''	
-		plt.figure(9)
-		plt.grid()
-		plt.plot(r/self.Rstar, tau/self.tau[-1], label='Tau')
-		plt.title("Tau", fontsize=25)
-		plt.show()
-		
-		plt.figure(5)
-		plt.grid()
-		plt.plot(r/self.Rstar, dLdr/(self.l[-1]/self.Rstar), label='dL/dR')
-		plt.title("dLdR", fontsize=25)
-		plt.show()
-		
-		plt.figure(6)
-		plt.grid()
-		plt.legend(loc='best',bbox_to_anchor=(0.8,0.66),prop={'size':11})
-		plt.plot(r/self.Rstar, pressure/self.p[0], label='Pressure')
-		plt.title("Pressure", fontsize=25)
-		plt.show()
-		
-		plt.figure(7)
-		plt.grid()
-		plt.plot(r/self.Rstar, np.log10(kappa), label='Opacity')
-		plt.title("Opacity", fontsize=25)
-		plt.show()
-		
-		plt.figure(8)
-		axes = plt.gca()
-		#axes.set_xlim(0,11)
-		axes.set_ylim(0,0.85)
-		plt.grid()
-		plt.plot(r[0:len(self.r) - 1]/self.Rstar, self.dlogPdlogT[0:len(self.r) - 1], label='dlogP/dlogT')
-		plt.title("dlogP/dlogT", fontsize=25)
-		plt.show()
-		
-SingleStar(1000.0,70.0e3,6.5e6)		
+SingleStar(1000.0,70.0e3,6.5e6,0)		
 print "It took:", time.time()-start, " seconds to run this code."
