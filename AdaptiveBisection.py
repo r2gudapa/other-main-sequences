@@ -2,7 +2,7 @@ import numpy as np
 import time
 import matplotlib.pyplot as plt
 import constants as ct
-from newStar1 import SingleStar
+from RegStar import SingleStar
 
 class FixDensity:
 
