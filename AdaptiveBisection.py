@@ -12,13 +12,13 @@ class FixDensity:
 		self.h = h
 		self.central_temp = temp_c
 #		print "StarA"
-		self.starA = SingleStar(self.h,5e3,temp_c,1)
+		self.starA = SingleStar(self.h,0.3e3,temp_c,1)
 #		print "StarB"
 		self.starB = SingleStar(self.h,500.0e3,temp_c,1)
 #		print "StarC"
 		self.starC = SingleStar(self.h,(0.3e3+500.0e3)/2.0,temp_c,1)
 		
-		self.BestStar = self.bisection(self.starA,self.starB,self.starC,10)
+		self.BestStar = self.bisection(self.starA,self.starB,self.starC,0.01)
 		
 	def f(self,trialstar):
 		
@@ -52,7 +52,7 @@ class FixDensity:
 #			print "New central density is:", starCrho
 #		print "star A=",starA.d[0], "; Star B=", starB.d[0]
 		starCrho=max(starA.d[0], starB.d[0])            
-		starC=SingleStar(self.h,starCrho,self.central_temp,1)            
+		starC=SingleStar(self.h,starCrho,self.central_temp,0)            
 		return starC
 		
 #FixDensity(1000.0,1.5e7)
